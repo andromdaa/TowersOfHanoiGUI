@@ -1,12 +1,12 @@
 package gui;
 
-import java.util.Deque;
-
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import model.Peg;
 import model.TowerOfHanoi;
+
+import java.util.Deque;
 
 /**
  * This view supports the rendering of all game elements 
@@ -50,14 +50,14 @@ public class TowerOfHanoiView {
 	private static final double MAX_DISK_RADIUS = (PEG_MIDDLE_X-PEG_LEFT_X) / 2;
 	private static final double DISK_ARC_WIDTH = 0.6;
 
-	private GraphicsContext graphicsContext;
-	private double horizontalMargin;
-	private double verticalMargin;
-	private double contentWidth;
-	private double contentHeight;
+	private final GraphicsContext graphicsContext;
+	private final double horizontalMargin;
+	private final double verticalMargin;
+	private final double contentWidth;
+	private final double contentHeight;
 	
-	private TowerOfHanoi game;
-	private double[] diskRadii;
+	private final TowerOfHanoi game;
+	private final double[] diskRadii;
 	
 	/**
 	 * Explicit Constructor, requires game instance 
@@ -98,15 +98,45 @@ public class TowerOfHanoiView {
 	}
 	
 	/**
-	 * TODO Draw all components of the game on the canvas.
 	 * Drawn components include: 3 pegs, 1 base, and all disks.
 	 * Please make use of the "unused" methods below.
 	 */
 	public void draw() {
-		
+		drawBase();
+		for(Peg peg : Peg.values()) {
+			drawPeg(peg);
+			Deque<Integer> deque = game.getDiskStack(peg);
+			for (int i = 0; i < deque.size(); i++) {
+				drawDisk(peg, i, deque.getLast() - i);
+			}
+		}
 	}
 
-	
+	/**
+	 * Draw a disk onto the canvas with the specified parameters.
+	 *
+	 * @param peg the Peg that this disk belongs to
+	 * @param height the number of disks below the one being drawn.
+	 * 				 Note that this is in the range [0, numDisks - 1]
+	 * @param disk the disk number (analogous to disk size)
+	 */
+	private void drawDisk(Peg peg, int height, int disk) {
+		double diskRadius = diskRadii[disk - 1];
+		double diskX = calcDiskX(peg, diskRadius);
+		double diskY = calcDiskY(height);
+		double diskWidth = 2 * diskRadius;
+		double diskHeight = DISK_HEIGHT * contentHeight;
+
+		graphicsContext.setFill(getDiskColor(disk));
+		graphicsContext.fillRoundRect(diskX, diskY, diskWidth, diskHeight,
+				DISK_ARC_WIDTH*diskWidth, diskHeight);
+		graphicsContext.setStroke(OUTLINE_COLOR);
+		graphicsContext.setLineWidth(OUTLINE_WIDTH);
+		graphicsContext.strokeRoundRect(diskX, diskY, diskWidth, diskHeight,
+				DISK_ARC_WIDTH*diskWidth, diskHeight);
+	}
+
+
 	/**
 	 * Draws the base rectangle, where the 3 pegs are attached.
 	 */
@@ -122,11 +152,11 @@ public class TowerOfHanoiView {
 		graphicsContext.strokeRect(baseX, baseY, baseWidth, baseHeight);
 	}
 
-	
+
 	/**
 	 * Draws a given peg at its intended location. Location is
 	 * determined based on peg's enum value.
-	 * 
+	 *
 	 * @param peg a member of enum Peg; represents the peg being drawn
 	 */
 	private void drawPeg(Peg peg) {
@@ -140,11 +170,11 @@ public class TowerOfHanoiView {
 		graphicsContext.setLineWidth(OUTLINE_WIDTH);
 		graphicsContext.strokeRect(pegX, pegY, pegWidth, pegHeight);
 	}
-	
+
 	/**
 	 * Calculates the X-coordinate for the top-left pixel
 	 * of the specified peg (left, middle, or right).
-	 * 
+	 *
 	 * @param peg Peg enum value representing desired peg
 	 * @return X-coordinate of top-left pixel of desired peg
 	 */
@@ -160,30 +190,6 @@ public class TowerOfHanoiView {
 		return horizontalMargin + contentWidth*(pegCenter - (PEG_WIDTH/2));
 	}
 
-	
-	/**
-	 * Draw a disk onto the canvas with the specified parameters.
-	 * 
-	 * @param peg the Peg that this disk belongs to
-	 * @param height the number of disks below the one being drawn.
-	 * 				 Note that this is in the range [0, numDisks - 1]
-	 * @param disk the disk number (analogous to disk size)
-	 */
-	private void drawDisk(Peg peg, int height, int disk) {
-		double diskRadius = diskRadii[disk - 1];
-		double diskX = calcDiskX(peg, diskRadius);
-		double diskY = calcDiskY(height);
-		double diskWidth = 2 * diskRadius;
-		double diskHeight = DISK_HEIGHT * contentHeight;
-		
-		graphicsContext.setFill(getDiskColor(disk));
-		graphicsContext.fillRoundRect(diskX, diskY, diskWidth, diskHeight, 
-				DISK_ARC_WIDTH*diskWidth, diskHeight);
-		graphicsContext.setStroke(OUTLINE_COLOR);
-		graphicsContext.setLineWidth(OUTLINE_WIDTH);
-		graphicsContext.strokeRoundRect(diskX, diskY, diskWidth, diskHeight, 
-				DISK_ARC_WIDTH*diskWidth, diskHeight);
-	}
 
 	
 	/**

@@ -1,15 +1,13 @@
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.fail;
+import model.Move;
+import model.Peg;
+import model.TowerOfHanoi;
+import org.junit.jupiter.api.Test;
 
 import java.util.Deque;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-import model.Move;
-import model.Peg;
-import model.TowerOfHanoi;
 
 class TowerOfHanoiTest {
 

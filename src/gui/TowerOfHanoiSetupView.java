@@ -1,8 +1,4 @@
 package gui;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -11,18 +7,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -32,6 +19,10 @@ import model.Move;
 import model.Peg;
 import model.TowerOfHanoi;
 import model.exceptions.IllegalMoveException;
+import java.lang.String;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Launch point for lab 10. Starts with settings window, which
@@ -42,13 +33,11 @@ import model.exceptions.IllegalMoveException;
  */
 public class TowerOfHanoiSetupView extends Application{
 	
-	//TODO Change name
 	/**Student Name*/
-	private static final String NAME = "Student Name";
+	private static final String NAME = "Cole Hoffman";
 	
-	//TODO Change ID Number
 	/**Student ID*/
-	private static final String STUDENT_ID = "###-##-####";
+	private static final String STUDENT_ID = "113-51-2140";
 	
 	/**Title of the application window*/
 	private static final String WINDOW_TITLE = NAME + " - " + STUDENT_ID;
@@ -192,14 +181,26 @@ public class TowerOfHanoiSetupView extends Application{
 			
 			@Override
 			public void handle(ActionEvent event) {
-				// TODO Input validation, error reporting (see readme)
+				Alert alert;
 				RadioButton rbStart = (RadioButton) tgStartPeg.getSelectedToggle();
 				RadioButton rbEnd = (RadioButton) tgEndPeg.getSelectedToggle();
 				int numDisks = disksSlider.getValue();
-				
-				// This "else" block represents the case when input is valid
-				// (i.e. none of the 4 error messages are shown)
-				// ***You will not need to change this code.***
+				if(rbStart == null) {
+					alert = new Alert(AlertType.ERROR, ERROR1);
+					alert.showAndWait();
+				}
+				else if(rbEnd == null) {
+					alert = new Alert(AlertType.ERROR, ERROR2);
+					alert.showAndWait();
+				}
+				else if(rbEnd.getText().equals(rbStart.getText())) {
+					alert = new Alert(AlertType.ERROR, ERROR3);
+					alert.showAndWait();
+				}
+				else if(numDisks <= 0) {
+					alert = new Alert(AlertType.ERROR, ERROR4);
+					alert.showAndWait();
+				}
 				else {
 					// Create simulator
 					Peg tStartPeg = PEG_NAME_MAP.get(rbStart.getText());
@@ -275,7 +276,6 @@ public class TowerOfHanoiSetupView extends Application{
 		void incrementMoveNumber() throws IllegalMoveException {
 			if(!solIter.hasNext()) {
 				new Alert(AlertType.INFORMATION, "Solution is already complete.").showAndWait();
-				return;
 			}
 			else {
 				Move doThisMove = solIter.next();
@@ -317,13 +317,17 @@ public class TowerOfHanoiSetupView extends Application{
 			HBox hboxBtns = new HBox(HBOX_SPACING_SLIM);
 			Button btnForward = new Button(">>");
 			hboxBtns.getChildren().add(btnForward);
-			btnForward.setOnAction(new EventHandler<ActionEvent>(){
+			btnForward.setOnAction(new EventHandler<>(){
 
 				private static final String ERROR = "Illegal move attempted. Simulation cannot continue";
 				@Override
 				public void handle(ActionEvent arg0) {
-					// TODO Move the simulator forward by one move	
-					// TODO If the next move is illegal, create an ERROR Alert with the above error message
+					try {
+						sim.incrementMoveNumber();
+					} catch (IllegalMoveException e) {
+						new Alert(AlertType.ERROR, ERROR).showAndWait();
+					}
+					sim.updateView();
 					// NOTE Make sure you update the view, or you won't see any changes to the model
 				}
 			});
@@ -355,11 +359,11 @@ public class TowerOfHanoiSetupView extends Application{
 		 * anytime the game model changes.
 		 */
 		void updateView() {
-			// TODO Clear canvas by drawing a filled white rectangle over the entire canvas
 			GraphicsContext g2 = gameCanvas.getGraphicsContext2D();
-			
-			// TODO Draw game components (check the other View class)
-			
+			g2.setFill(Color.WHITE);
+			g2.fillRect(gameCanvas.getLayoutX(), gameCanvas.getLayoutY(), gameCanvas.getWidth(), gameCanvas.getHeight());
+
+			gameView.draw();
 			// Update move number
 			lblMoveNumber.setText(String.format(FORMAT_MOVENUM_LABEL, moveNum, solution.size()));
 		}
